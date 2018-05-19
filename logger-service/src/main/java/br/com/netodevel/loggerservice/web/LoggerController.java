@@ -1,5 +1,6 @@
 package br.com.netodevel.loggerservice.web;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.netodevel.loggerservice.communicator.ProductCommunicator;
+import br.com.netodevel.loggerservice.communicator.ProductDTO;
 import br.com.netodevel.loggerservice.domain.Logger;
+import br.com.netodevel.loggerservice.domain.LoggerResponse;
 import br.com.netodevel.loggerservice.service.LoggerService;
 
 @RestController
@@ -21,28 +25,60 @@ public class LoggerController {
 	@Autowired
 	private LoggerService loggerService;
 	
-	@GetMapping("/loggers")
-	public ResponseEntity<List<Logger>> findAll(@RequestBody Logger logger) {
-		List<Logger> loggers = loggerService.findAll(logger);
-		return new ResponseEntity<List<Logger>>(loggers, org.springframework.http.HttpStatus.OK);
+	@Autowired
+	private ProductCommunicator productCommunicator;
+	
+	@GetMapping("/")
+	public ResponseEntity<List<LoggerResponse>> findAll() {
+		List<Logger> loggers = loggerService.findAll();
+		return new ResponseEntity<List<LoggerResponse>>(buildResponse(loggers), org.springframework.http.HttpStatus.OK);
 	}
 	
-	@PostMapping("/logger")
+	@GetMapping("/products/{product_id}")
+	public ResponseEntity<List<LoggerResponse>> findByProductId(@PathVariable("product_id") Integer productId) {
+		List<Logger> loggers = loggerService.findByProductId(productId);
+		return new ResponseEntity<List<LoggerResponse>>(buildResponse(loggers), org.springframework.http.HttpStatus.OK);
+	}
+	
+	private List<LoggerResponse> buildResponse(List<Logger> loggers) {
+		List<LoggerResponse> loggersResponse = new ArrayList<>();
+		for (Logger logger : loggers) {
+			ProductDTO productDTO = productCommunicator.findOne(logger.getProductId());
+			LoggerResponse loggerResponse = new LoggerResponse();
+			if (productDTO != null) {
+				loggerResponse.setProductDto(productDTO);
+				loggerResponse.setRegister(logger.getRegister());
+				loggersResponse.add(loggerResponse);
+			}
+		}
+		return loggersResponse;
+	}
+
+	@PostMapping("/")
 	public ResponseEntity<Logger> save(@RequestBody Logger logger) {
 		Logger loggerSaved = loggerService.save(logger);
 		return new ResponseEntity<Logger>(loggerSaved, org.springframework.http.HttpStatus.CREATED);
 	}
 	
-	@PutMapping("/logger/{logger_id}")
-	public ResponseEntity<Logger> update(@RequestBody Logger logger) {
-		Logger loggerSaved = loggerService.save(logger);
-		return new ResponseEntity<Logger>(loggerSaved, org.springframework.http.HttpStatus.OK);
+	@PutMapping("/{logger_id}")
+	public ResponseEntity<?> update(@PathVariable("logger_id") Integer loggerId, @RequestBody Logger logger) {
+		if (loggerService.findOne(loggerId).isPresent()) {
+			logger.setId(loggerId);
+			Logger loggerSaved = loggerService.save(logger);
+			return new ResponseEntity<Logger>(loggerSaved, org.springframework.http.HttpStatus.OK);			
+		} else {
+			return new ResponseEntity<String>("logger not exists.", org.springframework.http.HttpStatus.NO_CONTENT);
+		}
 	}
 	
-	@DeleteMapping("/logger/{logger_id}")
+	@DeleteMapping("/{logger_id}")
 	public ResponseEntity<String> delete(@PathVariable("logger_id") Integer loggerId) {
-		loggerService.delete(loggerId);
-		return new ResponseEntity<String>("logger deleted", org.springframework.http.HttpStatus.OK);
+		if (loggerService.findOne(loggerId).isPresent()) {
+			loggerService.delete(loggerId);
+			return new ResponseEntity<String>("logger deleted", org.springframework.http.HttpStatus.OK);
+		} else {
+			return new ResponseEntity<String>("logger not exists.", org.springframework.http.HttpStatus.NO_CONTENT);
+		}
 	}
 	
 }

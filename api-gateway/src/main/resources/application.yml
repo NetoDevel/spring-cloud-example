@@ -4,6 +4,12 @@
 zuul.routes.token.path: /api/auth/**
 zuul.routes.token.url: http://localhost:8082/
 
+zuul.routes.products.path: /api/products/**
+zuul.routes.products.url: http://localhost:8084/
+
+zuul.routes.loggers.path: /api/loggers/**
+zuul.routes.loggers.url: http://localhost:8083/
+
 ribbon.eureka.enabled: false
 
 spring.application.name: api-gateway
