@@ -12,4 +12,6 @@ public interface LoggerRepository extends JpaRepository<Logger, Integer>{
 
 	List<Logger> findByClientId(Integer customerId);
 
+	List<Logger> findByCategoryId(Integer categoryId);
+
 }

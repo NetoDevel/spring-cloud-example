@@ -13,6 +13,9 @@ zuul.routes.loggers.url: http://localhost:8083/
 zuul.routes.customers.path: /api/customers/**
 zuul.routes.customers.url: http://localhost:8085/
 
+zuul.routes.categories.path: /api/categories/**
+zuul.routes.categories.url: http://localhost:8086/
+
 ribbon.eureka.enabled: false
 
 spring.application.name: api-gateway

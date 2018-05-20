@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.netodevel.loggerservice.communicator.CategoryCommunicator;
+import br.com.netodevel.loggerservice.communicator.CategoryDTO;
 import br.com.netodevel.loggerservice.communicator.CustomerCommunicator;
 import br.com.netodevel.loggerservice.communicator.CustomerDTO;
 import br.com.netodevel.loggerservice.communicator.ProductCommunicator;
@@ -33,6 +35,9 @@ public class LoggerController {
 	@Autowired
 	private CustomerCommunicator customerCommunicator;
 	
+	@Autowired
+	private CategoryCommunicator categoryCommunicator;
+	
 	@GetMapping("/")
 	public ResponseEntity<List<LoggerResponse>> findAll() {
 		List<Logger> loggers = loggerService.findAll();
@@ -51,24 +56,12 @@ public class LoggerController {
 		return new ResponseEntity<List<LoggerResponse>>(buildResponse(loggers), org.springframework.http.HttpStatus.OK);
 	}
 	
-	private List<LoggerResponse> buildResponse(List<Logger> loggers) {
-		List<LoggerResponse> loggersResponse = new ArrayList<>();
-		for (Logger logger : loggers) {
-			ProductDTO productDTO = productCommunicator.findOne(logger.getProductId());
-			CustomerDTO customerDTO = customerCommunicator.findOne(logger.getClientId());
-			LoggerResponse loggerResponse = new LoggerResponse();
-			
-			if (productDTO != null && customerDTO != null) {
-				loggerResponse.setProductDto(productDTO);
-				loggerResponse.setCustomer(customerDTO);
-				loggerResponse.setRegister(logger.getRegister());
-				
-				loggersResponse.add(loggerResponse);
-			}
-		}
-		return loggersResponse;
+	@GetMapping("/categories/{category_id}")
+	public ResponseEntity<List<LoggerResponse>> findByCategoryId(@PathVariable("category_id") Integer categoryId) {
+		List<Logger> loggers = loggerService.findByCategoryId(categoryId);
+		return new ResponseEntity<List<LoggerResponse>>(buildResponse(loggers), org.springframework.http.HttpStatus.OK);
 	}
-
+	
 	@PostMapping("/")
 	public ResponseEntity<Logger> save(@RequestBody Logger logger) {
 		Logger loggerSaved = loggerService.save(logger);
@@ -93,6 +86,32 @@ public class LoggerController {
 			return new ResponseEntity<String>("logger deleted", org.springframework.http.HttpStatus.OK);
 		} else {
 			return new ResponseEntity<String>("logger not exists.", org.springframework.http.HttpStatus.NO_CONTENT);
+		}
+	}
+	
+	
+	private List<LoggerResponse> buildResponse(List<Logger> loggers) {
+		List<LoggerResponse> loggersResponse = new ArrayList<>();
+		for (Logger logger : loggers) {
+			ProductDTO productDTO = productCommunicator.findOne(logger.getProductId());
+			CustomerDTO customerDTO = customerCommunicator.findOne(logger.getClientId());
+			CategoryDTO categoryDTO = categoryCommunicator.findOne(logger.getCategoryId());
+			
+			LoggerResponse loggerResponse = new LoggerResponse();
+			prepareLoggerResponse(loggersResponse, logger, productDTO, customerDTO, categoryDTO, loggerResponse);
+		}
+		return loggersResponse;
+	}
+
+	private void prepareLoggerResponse(List<LoggerResponse> loggersResponse, Logger logger, ProductDTO productDTO,
+		CustomerDTO customerDTO, CategoryDTO categoryDTO, LoggerResponse loggerResponse) {
+		if (productDTO != null && customerDTO != null && categoryDTO != null) {
+			loggerResponse.setProductDto(productDTO);
+			loggerResponse.setCustomer(customerDTO);
+			loggerResponse.setCategory(categoryDTO);
+			loggerResponse.setRegister(logger.getRegister());
+			
+			loggersResponse.add(loggerResponse);
 		}
 	}
 	
