@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.netodevel.loggerservice.communicator.CustomerCommunicator;
+import br.com.netodevel.loggerservice.communicator.CustomerDTO;
 import br.com.netodevel.loggerservice.communicator.ProductCommunicator;
 import br.com.netodevel.loggerservice.communicator.ProductDTO;
 import br.com.netodevel.loggerservice.domain.Logger;
@@ -28,6 +30,9 @@ public class LoggerController {
 	@Autowired
 	private ProductCommunicator productCommunicator;
 	
+	@Autowired
+	private CustomerCommunicator customerCommunicator;
+	
 	@GetMapping("/")
 	public ResponseEntity<List<LoggerResponse>> findAll() {
 		List<Logger> loggers = loggerService.findAll();
@@ -40,14 +45,24 @@ public class LoggerController {
 		return new ResponseEntity<List<LoggerResponse>>(buildResponse(loggers), org.springframework.http.HttpStatus.OK);
 	}
 	
+	@GetMapping("/customers/{customers_id}")
+	public ResponseEntity<List<LoggerResponse>> findByCustomerId(@PathVariable("customers_id") Integer productId) {
+		List<Logger> loggers = loggerService.findByCustomerId(productId);
+		return new ResponseEntity<List<LoggerResponse>>(buildResponse(loggers), org.springframework.http.HttpStatus.OK);
+	}
+	
 	private List<LoggerResponse> buildResponse(List<Logger> loggers) {
 		List<LoggerResponse> loggersResponse = new ArrayList<>();
 		for (Logger logger : loggers) {
 			ProductDTO productDTO = productCommunicator.findOne(logger.getProductId());
+			CustomerDTO customerDTO = customerCommunicator.findOne(logger.getClientId());
 			LoggerResponse loggerResponse = new LoggerResponse();
-			if (productDTO != null) {
+			
+			if (productDTO != null && customerDTO != null) {
 				loggerResponse.setProductDto(productDTO);
+				loggerResponse.setCustomer(customerDTO);
 				loggerResponse.setRegister(logger.getRegister());
+				
 				loggersResponse.add(loggerResponse);
 			}
 		}

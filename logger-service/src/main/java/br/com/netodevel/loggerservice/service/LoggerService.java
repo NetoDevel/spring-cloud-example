@@ -34,5 +34,9 @@ public class LoggerService {
 	public Optional<Logger> findOne(Integer loggerId) {
 		return loggerRepository.findById(loggerId);
 	}
+
+	public List<Logger> findByCustomerId(Integer customerId) {
+		return loggerRepository.findByClientId(customerId);
+	}
 	
 }
