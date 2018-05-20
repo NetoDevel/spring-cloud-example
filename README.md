@@ -204,7 +204,8 @@ Depois iniciar os demais micro serviços.
       "register": "{'error': 'problema com conexão', 'novo_valor': 'valor3'}"
     }
   ```
-  ... Demais operações de CRUD
+  
+  #### Demais operações de CRUD...
   
   
    #### Buscar Logger por categorias
@@ -219,23 +220,85 @@ Depois iniciar os demais micro serviços.
   200:
   
   ```json
-    {
-      "id": 19,
-      "createdAt": "2018-05-20T12:31:46.354+0000",
-      "updatedAt": null,
-      "category_id": 18,
-      "product_id": 16,
-      "client_id": 17,
-      "register": "{'error': 'problema com conexão', 'novo_valor': 'valor3'}"
-    }
+{
+  "id": 19,
+  "category": {
+ 	"id": 15,
+	"description": "categoria de erro"
+  },
+  "product": {
+	"id": 16,
+	"description": "produto 2"
+  },
+  "cliente": {
+	"id": 17,
+	"name": "josé vieira"
+  },
+  "register": "{'error': 'problema com conexão', 'novo_valor': 'valor3'}"
+}
   ```
-  ... Demais operações de CRUD
-  
-  
-  
 
+  
+  #### Buscar Logger por clientes
 
+---------
+    
+  
+  #### GET
+  ```localhost:8080/api/loggers/customers/17```
+  
+  Response
+  
+  200:
+  
+ ```json
+{
+  "id": 19,
+  "category": {
+ 	"id": 15,
+	"description": "categoria de erro"
+  },
+  "product": {
+	"id": 16,
+	"description": "produto 2"
+  },
+  "cliente": {
+	"id": 17,
+	"name": "josé vieira"
+  },
+  "register": "{'error': 'problema com conexão', 'novo_valor': 'valor3'}"
+}
+  ```
 
+  #### Buscar Logger por produtos
+
+---------
+    
+  
+  #### GET
+  ```localhost:8080/api/loggers/products/16```
+  
+  Response
+  
+  200:
+ ```json
+{
+  "id": 19,
+  "category": {
+ 	"id": 15,
+	"description": "categoria de erro"
+  },
+  "product": {
+	"id": 16,
+	"description": "produto 2"
+  },
+  "cliente": {
+	"id": 17,
+	"name": "josé vieira"
+  },
+  "register": "{'error': 'problema com conexão', 'novo_valor': 'valor3'}"
+}
+  ```
 
 
 
